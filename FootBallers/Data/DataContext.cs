@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FootBallers.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace FootBallers.Data
 {
@@ -9,5 +10,7 @@ namespace FootBallers.Data
             Database.EnsureDeleted();
             Database.EnsureCreated();
         }
+
+        private DbSet<Footballer> Footballers => Set<Footballer>();
     }
 }
