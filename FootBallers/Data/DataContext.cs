@@ -7,10 +7,20 @@ namespace FootBallers.Data
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
-            //Database.EnsureDeleted();
-            //Database.EnsureCreated();
+            //Initialize();
+        }
+
+        private void Initialize()
+        {
+            Database.EnsureDeleted();
+            Database.EnsureCreated();
+            Countries.Add(new Country { Id = new Guid(), Name = "Россия" });
+            Countries.Add(new Country { Id = new Guid(), Name = "США" });
+            Countries.Add(new Country { Id = new Guid(), Name = "Италия" });
+            SaveChanges();
         }
 
         public DbSet<Footballer> Footballers => Set<Footballer>();
+        public DbSet<Country> Countries => Set<Country>();
     }
 }

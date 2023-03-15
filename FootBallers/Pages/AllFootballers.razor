@@ -83,6 +83,6 @@
     private async Task PatchFootballerAsync(FootballerDto footballer)
     {
         btnStateByFootballers[footballer] = !btnStateByFootballers[footballer];
-        await service.PatchAsync(footballer);
+        await service.PutAsync(footballer);
     }
 }

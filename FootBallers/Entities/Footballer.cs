@@ -10,6 +10,6 @@ namespace FootBallers.Entities
         public string Sex { get; set; }
         public DateTime Birthday { get; set; }
         public string Team { get; set; }
-        public string Country { get; set; }
+        public Country Country { get; set; }
     }
 }
