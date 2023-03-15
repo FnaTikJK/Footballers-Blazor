@@ -1,9 +1,37 @@
 ﻿@page "/"
+@using FootBallers.Services
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Добавить футболиста</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Добавить футболиста</h1>
 
-Welcome to your new app.
+<div>
+    <div>Имя</div>
+    <input @bind="footballerDto.Name"/>
+    <div>Фамилия</div>
+    <input @bind="footballerDto.Surname"/>
+    <div>Пол</div>
+    <input @bind="footballerDto.Sex"/>
+    <div>Дата рождения</div>
+    <input @bind="footballerDto.Birthday"/>
+    <div>Команда</div>
+    <input @bind="footballerDto.Team" />
+    <div>Страна</div>
+    <input @bind="footballerDto.Country" />
+</div>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+
+<button @onclick="Add">Добавить</button>
+
+@inject IFootballersService service;
+@code{
+    private FootballerDto footballerDto = new FootballerDto();
+
+    private async Task Add()
+    {
+        var b = 10;
+        await service.AddAsync(footballerDto);
+        var list = await service.GetAllAsync();
+        var a = 10;
+    }
+}

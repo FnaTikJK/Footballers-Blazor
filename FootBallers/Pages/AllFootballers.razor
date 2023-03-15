@@ -1,0 +1,53 @@
+﻿@page "/all"
+@using System.Runtime.CompilerServices
+
+<PageTitle>Список футболистов</PageTitle>
+
+<h1>Список футболистов</h1>
+
+<div>
+    @if (footballers == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ИД</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Пол</th>
+                <th>Дата рождения</th>
+                <th>Команда</th>
+                <th>Страна</th>
+            </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in footballers)
+            {
+                <tr>
+                    <td>@e.Id</td>
+                    <td>@e.Name</td>
+                    <td>@e.Surname</td>
+                    <td>@e.Sex</td>
+                    <td>@e.Birthday.Date</td>
+                    <td>@e.Team</td>
+                    <td>@e.Country</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</div>
+
+@inject IFootballersService service;
+@code {
+    private List<Footballer> footballers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        footballers = await service.GetAllAsync();
+    }
+}
