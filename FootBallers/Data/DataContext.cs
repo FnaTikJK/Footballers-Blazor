@@ -20,6 +20,14 @@ namespace FootBallers.Data
             SaveChanges();
         }
 
+        public async Task UpdateAndSaveAsync<T>(T destination, T source)
+            where T : class
+        {
+            foreach (var propInfo in typeof(T).GetProperties())
+                propInfo.SetValue(destination, propInfo.GetValue(source));
+            await SaveChangesAsync();
+        }
+
         public DbSet<Footballer> Footballers => Set<Footballer>();
         public DbSet<Country> Countries => Set<Country>();
     }
