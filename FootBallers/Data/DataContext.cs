@@ -7,10 +7,10 @@ namespace FootBallers.Data
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
-            Database.EnsureDeleted();
-            Database.EnsureCreated();
+            //Database.EnsureDeleted();
+            //Database.EnsureCreated();
         }
 
-        private DbSet<Footballer> Footballers => Set<Footballer>();
+        public DbSet<Footballer> Footballers => Set<Footballer>();
     }
 }
