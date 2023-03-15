@@ -6,7 +6,7 @@
 <h1>Список футболистов</h1>
 
 <div>
-    @if (footballers == null)
+    @if (btnStateByFootballers.Keys.Count == 0)
     {
         <p><em>Loading...</em></p>
     }
@@ -14,27 +14,55 @@
     {
         <table class="table">
             <thead>
-            <tr>
-                <th>ИД</th>
-                <th>Имя</th>
-                <th>Фамилия</th>
-                <th>Пол</th>
-                <th>Дата рождения</th>
-                <th>Команда</th>
-                <th>Страна</th>
+            <tr class="row">
+                <th class="col">ИД</th>
+                <th class="col">Имя</th>
+                <th class="col">Фамилия</th>
+                <th class="col">Пол</th>
+                <th class="col">Дата рождения</th>
+                <th class="col">Команда</th>
+                <th class="col">Страна</th>
+                <th class="col"></th>
             </tr>
             </thead>
             <tbody>
-                @foreach (var e in footballers)
+            @foreach (var btnStateByFootballer in btnStateByFootballers.Keys)
             {
-                <tr>
-                    <td>@e.Id</td>
-                    <td>@e.Name</td>
-                    <td>@e.Surname</td>
-                    <td>@e.Sex</td>
-                    <td>@e.Birthday.Date</td>
-                    <td>@e.Team</td>
-                    <td>@e.Country</td>
+                <tr class="row">
+                    <td class="col">@btnStateByFootballer.Id</td>
+                    @if (btnStateByFootballers[btnStateByFootballer])
+                    {
+                        <input class="col" @bind="@btnStateByFootballer.Name" />
+                        <input class="col" @bind="@btnStateByFootballer.Surname" />
+                        <input class="col" @bind="@btnStateByFootballer.Sex" />
+                        <input class="col" @bind="@btnStateByFootballer.Birthday" />
+                        <input class="col" @bind="@btnStateByFootballer.Team" />
+                        <input class="col" @bind="@btnStateByFootballer.Country" />
+                    }
+                    else
+                    {
+                        <td class="col">@btnStateByFootballer.Name</td>
+                        <td class="col">@btnStateByFootballer.Surname</td>
+                        <td class="col">@btnStateByFootballer.Sex</td>
+                        <td class="col">@btnStateByFootballer.Birthday</td>
+                        <td class="col">@btnStateByFootballer.Team</td>
+                        <td class="col">@btnStateByFootballer.Country</td>
+                    }
+                    <td class="col">
+                        @if (!btnStateByFootballers[btnStateByFootballer])
+                        {
+                            <button @onclick="() => btnStateByFootballers[btnStateByFootballer] 
+                                                    = !btnStateByFootballers[btnStateByFootballer]">
+                                Редактировать
+                            </button>
+                        }
+                        else
+                        {
+                            <button @onclick="async () => await PatchFootballerAsync(btnStateByFootballer)">
+                                Ок
+                            </button>
+                        }
+                    </td>
                 </tr>
             }
             </tbody>
@@ -44,10 +72,17 @@
 
 @inject IFootballersService service;
 @code {
-    private List<Footballer> footballers;
+    private Dictionary<FootballerDto, bool> btnStateByFootballers = new Dictionary<FootballerDto, bool>();
 
     protected override async Task OnInitializedAsync()
     {
-        footballers = await service.GetAllAsync();
+        foreach (var footballer in await service.GetAllAsync())
+            btnStateByFootballers.Add(footballer, false);
+    }
+
+    private async Task PatchFootballerAsync(FootballerDto footballer)
+    {
+        btnStateByFootballers[footballer] = !btnStateByFootballers[footballer];
+        await service.PatchAsync(footballer);
     }
 }
