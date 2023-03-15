@@ -5,8 +5,8 @@ namespace FootBallers.Services
 {
     public interface IFootballersService
     {
-        public Task AddAsync(FootballerDto footballer);
-        public Task<List<Footballer>> GetAllAsync();
-        public Task DeleteAsync(Guid id);
+        public Task AddAsync(FootballerDto footballerAdd);
+        public Task<List<FootballerDto>> GetAllAsync();
+        public Task PutAsync(FootballerDto patchedFootballer);
     }
 }

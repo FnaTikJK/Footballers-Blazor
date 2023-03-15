@@ -2,6 +2,7 @@
 using FootBallers.Data;
 using FootBallers.Entities;
 using FootBallers.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 
 namespace FootBallers.Services
@@ -17,27 +18,26 @@ namespace FootBallers.Services
             this.mapper = mapper;
         }
 
-        public async Task AddAsync(FootballerDto footballerDto)
+        public async Task AddAsync(FootballerDto footballerAddDto)
         {
-            var footballer = mapper.Map<Footballer>(footballerDto);
+            var footballer = mapper.Map<Footballer>(footballerAddDto);
             footballer.Id = new Guid();
             await dataContext.AddAsync(footballer);
             await dataContext.SaveChangesAsync();
         }
 
-        public async Task<List<Footballer>> GetAllAsync()
+        public async Task<List<FootballerDto>> GetAllAsync()
         {
-            return await dataContext.Footballers.ToListAsync();
+            return mapper.Map<List<FootballerDto>>(await dataContext.Footballers.ToListAsync());
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task PutAsync(FootballerDto patchedFootballer)
         {
-            var footballer = await dataContext.Footballers.FirstOrDefaultAsync(e => e.Id == id);
-            if (footballer != null)
-            {
-                dataContext.Footballers.Remove(footballer);
-                await dataContext.SaveChangesAsync();
-            }
+            var current = await dataContext.Footballers.FirstOrDefaultAsync(e => e.Id == patchedFootballer.Id);
+            var newFootballer = mapper.Map<Footballer>(patchedFootballer);
+            dataContext.Entry(current)
+                .CurrentValues.SetValues(newFootballer);
+            await dataContext.SaveChangesAsync();
         }
     }
 }
