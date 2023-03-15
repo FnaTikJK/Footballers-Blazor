@@ -19,11 +19,13 @@ namespace FootBallers.Helpers
             CreateMap<Footballer, FootballerDto>()
                 .ForMember(dest => dest.Birthday, opt => opt.ConvertUsing<DateConverter, DateTime>())
                 .ForMember(dest => dest.Country, opt => opt.ConvertUsing<CountryConverter, Country>())
-                .ForMember(dest => dest.Sex, opt => opt.ConvertUsing<SexConverter, Sex>());
+                .ForMember(dest => dest.Sex, opt => opt.ConvertUsing<SexConverter, Sex>())
+                .ForMember(dest => dest.Team, opt => opt.ConvertUsing<TeamConverter, Team>());
             CreateMap<FootballerDto, Footballer>()
                 .ForMember(dest => dest.Birthday, opt => opt.ConvertUsing<DateConverter, DateOnly>())
                 .ForMember(dest => dest.Country, opt => opt.ConvertUsing<CountryConverter, string>())
-                .ForMember(dest => dest.Sex, opt => opt.ConvertUsing<SexConverter, string>());
+                .ForMember(dest => dest.Sex, opt => opt.ConvertUsing<SexConverter, string>())
+                .ForMember(dest => dest.Team, opt => opt.ConvertUsing<TeamConverter, string>());
         }
     }
 
@@ -76,5 +78,22 @@ namespace FootBallers.Helpers
 
         public Sex Convert(string sourceMember, ResolutionContext context)
             => dataContext.Sexes.FirstOrDefault(e => e.Name == sourceMember);
+    }
+
+    public class TeamConverter 
+        : IValueConverter<Team, string>, IValueConverter<string, Team>
+    {
+        private DataContext dataContext;
+
+        public TeamConverter(DataContext dataContext)
+        {
+            this.dataContext = dataContext;
+        }
+
+        public string Convert(Team sourceMember, ResolutionContext context)
+            => sourceMember.Name;
+
+        public Team Convert(string sourceMember, ResolutionContext context)
+            => dataContext.Teams.FirstOrDefault(e => e.Name == sourceMember);
     }
 }

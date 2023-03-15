@@ -7,7 +7,7 @@ namespace FootBallers.Data
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
-            Initialize();
+            //Initialize();
         }
 
         private void Initialize()
@@ -33,5 +33,6 @@ namespace FootBallers.Data
         public DbSet<Footballer> Footballers => Set<Footballer>();
         public DbSet<Country> Countries => Set<Country>();
         public DbSet<Sex> Sexes => Set<Sex>();
+        public DbSet<Team> Teams => Set<Team>();
     }
 }
