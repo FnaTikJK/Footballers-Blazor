@@ -18,7 +18,12 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 builder.Services.AddAutoMapper(cfg =>
 {
-    cfg.CreateMap<Footballer, FootballerDto>().ReverseMap();
+    cfg.CreateMap<Footballer, FootballerDto>()
+        .ForMember(dest => dest.Birthday, opt => 
+            opt.MapFrom(src => new DateOnly(src.Birthday.Year, src.Birthday.Month, src.Birthday.Day)));
+    cfg.CreateMap<FootballerDto, Footballer>()
+        .ForMember(dest => dest.Birthday, opt =>
+            opt.MapFrom(src => src.Birthday.ToDateTime(new TimeOnly())));
 });
 
 var app = builder.Build();
