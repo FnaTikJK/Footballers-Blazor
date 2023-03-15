@@ -34,10 +34,35 @@
                     {
                         <input class="col" @bind="@btnStateByFootballer.Name" />
                         <input class="col" @bind="@btnStateByFootballer.Surname" />
-                        <input class="col" @bind="@btnStateByFootballer.Sex" />
+                        <select class="col" @bind="btnStateByFootballer.Sex">
+                            @if (sexes != null)
+                            {
+                                @foreach (var sex in sexes)
+                                {
+                                    <option value="@sex">@sex</option>
+                                }
+                            }
+                        </select>
                         <input class="col" @bind="@btnStateByFootballer.Birthday" />
-                        <input class="col" @bind="@btnStateByFootballer.Team" />
-                        <input class="col" @bind="@btnStateByFootballer.Country" />
+                        <datalist id="suggestions">
+                            @if (teams != null)
+                            {
+                                @foreach (var team in teams)
+                                {
+                                    <option value="@team">@team</option>
+                                }
+                            }
+                        </datalist>
+                        <input  class="col" @bind="btnStateByFootballer.Team" autoComplete="on" list="suggestions"/>
+                        <select class="col" @bind="btnStateByFootballer.Country">
+                            @if (countries != null)
+                            {
+                                @foreach (var country in countries)
+                                {
+                                    <option value="@country">@country</option>
+                                }
+                            }
+                        </select>
                     }
                     else
                     {
@@ -73,11 +98,17 @@
 @inject IFootballersService service;
 @code {
     private Dictionary<FootballerDto, bool> btnStateByFootballers = new Dictionary<FootballerDto, bool>();
+    private List<string> countries;
+    private List<string> teams;
+    private List<string> sexes;
 
     protected override async Task OnInitializedAsync()
     {
         foreach (var footballer in await service.GetAllAsync())
             btnStateByFootballers.Add(footballer, false);
+        countries = new List<string>{""}.Concat(await service.GetCountryNames()).ToList();
+        teams = new List<string>{""}.Concat(await service.GetTeamNames()).ToList();
+        sexes = new List<string>{""}.Concat(await service.GetSexNames()).ToList();
     }
 
     private async Task PutFootballerAsync(FootballerDto footballer)
