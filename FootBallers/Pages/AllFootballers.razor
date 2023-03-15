@@ -58,7 +58,7 @@
                         }
                         else
                         {
-                            <button @onclick="async () => await PatchFootballerAsync(btnStateByFootballer)">
+                            <button @onclick="async () => await PutFootballerAsync(btnStateByFootballer)">
                                 Ок
                             </button>
                         }
@@ -80,7 +80,7 @@
             btnStateByFootballers.Add(footballer, false);
     }
 
-    private async Task PatchFootballerAsync(FootballerDto footballer)
+    private async Task PutFootballerAsync(FootballerDto footballer)
     {
         btnStateByFootballers[footballer] = !btnStateByFootballers[footballer];
         await service.PutAsync(footballer);

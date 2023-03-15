@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Runtime.InteropServices;
+using AutoMapper;
 using FootBallers.Data;
 using FootBallers.Entities;
 using FootBallers.Models;
@@ -28,16 +29,16 @@ namespace FootBallers.Services
 
         public async Task<List<FootballerDto>> GetAllAsync()
         {
-            return mapper.Map<List<FootballerDto>>(await dataContext.Footballers.ToListAsync());
+            return mapper.Map<List<FootballerDto>>(await dataContext.Footballers.Include(e => e.Country).ToListAsync());
         }
 
         public async Task PutAsync(FootballerDto patchedFootballer)
         {
-            var current = await dataContext.Footballers.FirstOrDefaultAsync(e => e.Id == patchedFootballer.Id);
+            var curFootballer = await dataContext.Footballers
+                .Include(e => e.Country)
+                .FirstOrDefaultAsync(e => e.Id == patchedFootballer.Id);
             var newFootballer = mapper.Map<Footballer>(patchedFootballer);
-            dataContext.Entry(current)
-                .CurrentValues.SetValues(newFootballer);
-            await dataContext.SaveChangesAsync();
+            await dataContext.UpdateAndSaveAsync<Footballer>(curFootballer, newFootballer);
         }
     }
 }
