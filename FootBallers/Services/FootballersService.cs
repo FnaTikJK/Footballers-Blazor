@@ -5,6 +5,7 @@ using FootBallers.Entities;
 using FootBallers.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 
 namespace FootBallers.Services
 {
@@ -57,6 +58,21 @@ namespace FootBallers.Services
                 .FirstOrDefaultAsync(e => e.Id == patchedFootballer.Id);
             var newFootballer = mapper.Map<Footballer>(patchedFootballer);
             await dataContext.UpdateAndSaveAsync<Footballer>(curFootballer, newFootballer);
+        }
+
+        public async Task<List<string>> GetCountryNames()
+        {
+            return await dataContext.Countries.Select(e => e.Name).ToListAsync();
+        }
+
+        public async Task<List<string>> GetTeamNames()
+        {
+            return await dataContext.Teams.Select(e => e.Name).ToListAsync();
+        }
+
+        public async Task<List<string>> GetSexNames()
+        {
+            return await dataContext.Sexes.Select(e => e.Name).ToListAsync();
         }
     }
 }

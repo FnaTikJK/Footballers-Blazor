@@ -1,5 +1,4 @@
 ﻿@page "/"
-@using FootBallers.Services
 
 <PageTitle>Добавить футболиста</PageTitle>
 
@@ -11,13 +10,38 @@
     <div>Фамилия</div>
     <input @bind="footballerDto.Surname"/>
     <div>Пол</div>
-    <input @bind="footballerDto.Sex"/>
+    <select @bind="footballerDto.Sex">
+        @if (sexes != null)
+        {
+            @foreach (var sex in sexes)
+            {
+                <option value="@sex">@sex</option>
+            }
+        }
+    </select>
     <div>Дата рождения</div>
     <input @bind="footballerDto.Birthday"/>
     <div>Команда</div>
-    <input @bind="footballerDto.Team" />
+    <datalist id="suggestions">
+        @if (teams != null)
+        {
+            @foreach (var team in teams)
+            {
+                <option value="@team">@team</option>
+            }
+        }
+    </datalist>
+    <input @bind="footballerDto.Team" autoComplete="on" list="suggestions" />
     <div>Страна</div>
-    <input @bind="footballerDto.Country" />
+    <select @bind="footballerDto.Country">
+        @if (countries != null)
+        {
+            @foreach (var country in countries)
+            {
+                <option value="@country">@country</option>
+            }
+        }
+    </select>
 </div>
 
 <button @onclick="Add">Добавить</button>
@@ -25,6 +49,16 @@
 @inject IFootballersService service;
 @code{
     private FootballerDto footballerDto = new FootballerDto();
+    private List<string> countries;
+    private List<string> teams;
+    private List<string> sexes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        countries = new List<string>{""}.Concat(await service.GetCountryNames()).ToList();
+        teams = new List<string>{""}.Concat(await service.GetTeamNames()).ToList();
+        sexes = new List<string>{""}.Concat(await service.GetSexNames()).ToList();
+    }
 
     private async Task Add()
     {
