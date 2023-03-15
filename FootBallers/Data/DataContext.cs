@@ -7,7 +7,7 @@ namespace FootBallers.Data
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
-            //Initialize();
+            Initialize();
         }
 
         private void Initialize()
@@ -17,6 +17,8 @@ namespace FootBallers.Data
             Countries.Add(new Country { Id = new Guid(), Name = "Россия" });
             Countries.Add(new Country { Id = new Guid(), Name = "США" });
             Countries.Add(new Country { Id = new Guid(), Name = "Италия" });
+            Sexes.Add(new Sex { Id = new Guid(), Name = "Мужской" });
+            Sexes.Add(new Sex { Id = new Guid(), Name = "Женский" });
             SaveChanges();
         }
 
@@ -30,5 +32,6 @@ namespace FootBallers.Data
 
         public DbSet<Footballer> Footballers => Set<Footballer>();
         public DbSet<Country> Countries => Set<Country>();
+        public DbSet<Sex> Sexes => Set<Sex>();
     }
 }
