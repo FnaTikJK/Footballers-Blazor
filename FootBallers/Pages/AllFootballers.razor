@@ -7,6 +7,10 @@
 <h1>Список футболистов</h1>
 
 <div>
+    @if (Error.Is)
+    {
+        <div>Ошибка @Error.Message</div>
+    }
     @if (footballers == null)
     {
         <p><em>Loading...</em></p>
@@ -27,14 +31,14 @@
             </tr>
             </thead>
             <tbody>
-            @foreach(var footballer in footballers)
+            @foreach (var footballer in footballers)
             {
                 <tr class="row">
                     <td class="col">@footballer.Id</td>
                     @if (footballer.IsChangeable)
                     {
-                        <input class="col" @bind="@footballer.Name" />
-                        <input class="col" @bind="@footballer.Surname" />
+                        <input class="col" @bind="@footballer.Name"/>
+                        <input class="col" @bind="@footballer.Surname"/>
                         <select class="col" @bind="footballer.Sex">
                             @if (sexes != null)
                             {
@@ -44,7 +48,7 @@
                                 }
                             }
                         </select>
-                        <input class="col" @bind="@footballer.Birthday" />
+                        <input class="col" @bind="@footballer.Birthday"/>
                         <datalist id="suggestions">
                             @if (teams != null)
                             {
@@ -54,7 +58,7 @@
                                 }
                             }
                         </datalist>
-                        <input  class="col" @bind="footballer.Team" autoComplete="on" list="suggestions"/>
+                        <input class="col" @bind="footballer.Team" autoComplete="on" list="suggestions"/>
                         <select class="col" @bind="footballer.Country">
                             @if (countries != null)
                             {
@@ -77,7 +81,7 @@
                     <td class="col">
                         @if (!footballer.IsChangeable)
                         {
-                                <button @onclick="() => footballer.IsChangeable = !footballer.IsChangeable">
+                            <button @onclick="() => footballer.IsChangeable = !footballer.IsChangeable">
                                 Редактировать
                             </button>
                         }
@@ -97,6 +101,7 @@
 
 @inject IFootballersService service;
 @code {
+    private (bool Is, string Message) Error = (false, "");
     private List<FootballerDto> footballers;
     private List<string> countries;
     private List<string> teams;
@@ -115,7 +120,7 @@
             .WithAutomaticReconnect()
             .Build();
 
-        hubConnection.On<List<FootballerDto>>("UpdateList", list => UpdateFootballers(list));
+        hubConnection.On<List<FootballerDto>>("UpdateList", UpdateFootballers);
         await hubConnection.StartAsync();
     }
 
@@ -126,6 +131,13 @@
 
     private async Task PutFootballerAsync(FootballerDto footballer)
     {
+        if (!FootballerDto.isValid(footballer, out var error))
+        {
+            Error = (true, error);
+            return;
+        }
+
+        Error = (false, "");
         footballer.IsChangeable = !footballer.IsChangeable;
         await service.PutAsync(footballer);
         await hubConnection.SendAsync("UpdateList", footballers);

@@ -5,6 +5,10 @@
 <h1>Добавить футболиста</h1>
 
 <div>
+    @if (Error.Is)
+    {
+        <div>Ошибка @Error.Message</div>
+    }
     <div>Имя</div>
     <input @bind="footballerDto.Name"/>
     <div>Фамилия</div>
@@ -31,7 +35,7 @@
             }
         }
     </datalist>
-    <input @bind="footballerDto.Team" autoComplete="on" list="suggestions" />
+    <input @bind="footballerDto.Team" autoComplete="on" list="suggestions"/>
     <div>Страна</div>
     <select @bind="footballerDto.Country">
         @if (countries != null)
@@ -49,6 +53,7 @@
 @inject IFootballersService service;
 @code{
     private FootballerDto footballerDto = new FootballerDto();
+    private (bool Is, string Message) Error = (false, "");
     private List<string> countries;
     private List<string> teams;
     private List<string> sexes;
@@ -62,6 +67,13 @@
 
     private async Task Add()
     {
+        if (!FootballerDto.isValid(footballerDto, out var error))
+        {
+            Error = (true, error);
+            return;
+        }
+
+        Error = (false, "");
         await service.AddAsync(footballerDto);
     }
 }
