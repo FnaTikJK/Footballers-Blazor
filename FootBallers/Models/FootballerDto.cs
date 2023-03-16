@@ -9,5 +9,6 @@
         public DateOnly Birthday { get; set; }
         public string Team { get; set; }
         public string Country { get; set; }
+        public bool IsChangeable { get; set; }
     }
 }

@@ -1,12 +1,13 @@
 ﻿@page "/all"
 @using System.Runtime.CompilerServices
+@using Microsoft.AspNetCore.SignalR.Client;
 
 <PageTitle>Список футболистов</PageTitle>
 
 <h1>Список футболистов</h1>
 
 <div>
-    @if (btnStateByFootballers.Keys.Count == 0)
+    @if (footballers == null)
     {
         <p><em>Loading...</em></p>
     }
@@ -26,15 +27,15 @@
             </tr>
             </thead>
             <tbody>
-            @foreach (var btnStateByFootballer in btnStateByFootballers.Keys)
+            @foreach(var footballer in footballers)
             {
                 <tr class="row">
-                    <td class="col">@btnStateByFootballer.Id</td>
-                    @if (btnStateByFootballers[btnStateByFootballer])
+                    <td class="col">@footballer.Id</td>
+                    @if (footballer.IsChangeable)
                     {
-                        <input class="col" @bind="@btnStateByFootballer.Name" />
-                        <input class="col" @bind="@btnStateByFootballer.Surname" />
-                        <select class="col" @bind="btnStateByFootballer.Sex">
+                        <input class="col" @bind="@footballer.Name" />
+                        <input class="col" @bind="@footballer.Surname" />
+                        <select class="col" @bind="footballer.Sex">
                             @if (sexes != null)
                             {
                                 @foreach (var sex in sexes)
@@ -43,7 +44,7 @@
                                 }
                             }
                         </select>
-                        <input class="col" @bind="@btnStateByFootballer.Birthday" />
+                        <input class="col" @bind="@footballer.Birthday" />
                         <datalist id="suggestions">
                             @if (teams != null)
                             {
@@ -53,8 +54,8 @@
                                 }
                             }
                         </datalist>
-                        <input  class="col" @bind="btnStateByFootballer.Team" autoComplete="on" list="suggestions"/>
-                        <select class="col" @bind="btnStateByFootballer.Country">
+                        <input  class="col" @bind="footballer.Team" autoComplete="on" list="suggestions"/>
+                        <select class="col" @bind="footballer.Country">
                             @if (countries != null)
                             {
                                 @foreach (var country in countries)
@@ -66,24 +67,23 @@
                     }
                     else
                     {
-                        <td class="col">@btnStateByFootballer.Name</td>
-                        <td class="col">@btnStateByFootballer.Surname</td>
-                        <td class="col">@btnStateByFootballer.Sex</td>
-                        <td class="col">@btnStateByFootballer.Birthday</td>
-                        <td class="col">@btnStateByFootballer.Team</td>
-                        <td class="col">@btnStateByFootballer.Country</td>
+                        <td class="col">@footballer.Name</td>
+                        <td class="col">@footballer.Surname</td>
+                        <td class="col">@footballer.Sex</td>
+                        <td class="col">@footballer.Birthday</td>
+                        <td class="col">@footballer.Team</td>
+                        <td class="col">@footballer.Country</td>
                     }
                     <td class="col">
-                        @if (!btnStateByFootballers[btnStateByFootballer])
+                        @if (!footballer.IsChangeable)
                         {
-                            <button @onclick="() => btnStateByFootballers[btnStateByFootballer] 
-                                                    = !btnStateByFootballers[btnStateByFootballer]">
+                                <button @onclick="() => footballer.IsChangeable = !footballer.IsChangeable">
                                 Редактировать
                             </button>
                         }
                         else
                         {
-                            <button @onclick="async () => await PutFootballerAsync(btnStateByFootballer)">
+                            <button @onclick="async () => await PutFootballerAsync(footballer)">
                                 Ок
                             </button>
                         }
@@ -97,23 +97,37 @@
 
 @inject IFootballersService service;
 @code {
-    private Dictionary<FootballerDto, bool> btnStateByFootballers = new Dictionary<FootballerDto, bool>();
+    private List<FootballerDto> footballers;
     private List<string> countries;
     private List<string> teams;
     private List<string> sexes;
+    private HubConnection hubConnection;
 
     protected override async Task OnInitializedAsync()
     {
-        foreach (var footballer in await service.GetAllAsync())
-            btnStateByFootballers.Add(footballer, false);
+        UpdateFootballers(await service.GetAllAsync());
         countries = new List<string>{""}.Concat(await service.GetCountryNames()).ToList();
         teams = new List<string>{""}.Concat(await service.GetTeamNames()).ToList();
         sexes = new List<string>{""}.Concat(await service.GetSexNames()).ToList();
+
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7277/chat")
+            .WithAutomaticReconnect()
+            .Build();
+
+        hubConnection.On<List<FootballerDto>>("UpdateList", list => UpdateFootballers(list));
+        await hubConnection.StartAsync();
+    }
+
+    private void UpdateFootballers(List<FootballerDto> footballers)
+    {
+        this.footballers = footballers;
     }
 
     private async Task PutFootballerAsync(FootballerDto footballer)
     {
-        btnStateByFootballers[footballer] = !btnStateByFootballers[footballer];
+        footballer.IsChangeable = !footballer.IsChangeable;
         await service.PutAsync(footballer);
+        await hubConnection.SendAsync("UpdateList", footballers);
     }
 }

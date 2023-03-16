@@ -2,6 +2,7 @@ using AutoMapper;
 using FootBallers.Data;
 using FootBallers.Entities;
 using FootBallers.Helpers;
+using FootBallers.Hubs;
 using FootBallers.Models;
 using FootBallers.Services;
 using Microsoft.AspNetCore.Components;
@@ -20,6 +21,8 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 builder.Services.AddAutoMapper(typeof(AutoMappingProfile));
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -27,12 +30,14 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
-
+app.MapHub<AllFootballersHub>("/chat");
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseWebSockets();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
